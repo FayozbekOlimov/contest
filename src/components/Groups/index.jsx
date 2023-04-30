@@ -2,8 +2,10 @@ import PropTypes from "prop-types";
 import SwipeableViews from "react-swipeable-views";
 import { Box, Typography, Container, Grid } from "@mui/material";
 import { MuiAppBar, MuiTab, MuiTabLabel, MuiTabs } from "./style";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Score from "../Score";
+import axios from "axios";
+import { BASE_URL, ligaUrl, oldgameUrl } from "../../api/urls";
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -45,6 +47,30 @@ const Groups = ({ isHeld }) => {
     setValue(index);
   };
 
+  const [ligas, setLigas] = useState([]);
+
+  const getLigas = async () => {
+    const resp = await axios.get(BASE_URL + ligaUrl);
+    const data = resp.data;
+    setLigas(data);
+  };
+
+  useEffect(() => {
+    getLigas();
+  }, []);
+
+  const [oldgame, setOldgame] = useState([]);
+
+  const getOldgame = async () => {
+    const resp = await axios.get(BASE_URL + oldgameUrl);
+    const data = resp?.data;
+    setOldgame(data);
+  };
+
+  useEffect(() => {
+    getOldgame();
+  }, []);
+
   return (
     <Container maxWidth="xl" sx={{ my: 4 }}>
       <MuiAppBar>
@@ -54,75 +80,39 @@ const Groups = ({ isHeld }) => {
           aria-label="full width tabs"
           variant="scrollable"
         >
-          <MuiTab
-            label={
-              <MuiTabLabel>
-                <img src="/images/premierliga.png" alt="liga" />
-                <Typography>Italiya, Seriya A</Typography>
-              </MuiTabLabel>
-            }
-            {...a11yProps(0)}
-          />
-          <MuiTab
-            label={
-              <MuiTabLabel>
-                <img src="/images/premierliga.png" alt="liga" />
-                <Typography>Premier Liga</Typography>
-              </MuiTabLabel>
-            }
-            {...a11yProps(1)}
-          />
-          <MuiTab
-            label={
-              <MuiTabLabel>
-                <img src="/images/premierliga.png" alt="liga" />
-                <Typography>LaLiga</Typography>
-              </MuiTabLabel>
-            }
-            {...a11yProps(2)}
-          />
-          <MuiTab
-            label={
-              <MuiTabLabel>
-                <img src="/images/premierliga.png" alt="liga" />
-                <Typography>BundesLiga</Typography>
-              </MuiTabLabel>
-            }
-            {...a11yProps(3)}
-          />
-          <MuiTab
-            label={
-              <MuiTabLabel>
-                <img src="/images/premierliga.png" alt="liga" />
-                <Typography>Ligue 1</Typography>
-              </MuiTabLabel>
-            }
-            {...a11yProps(4)}
-          />
+          {ligas.map((liga, ind) => (
+            <MuiTab
+              key={ind}
+              label={
+                <MuiTabLabel>
+                  <img src={liga?.image} />
+                  <Typography>{liga?.name}</Typography>
+                </MuiTabLabel>
+              }
+              {...a11yProps(ind)}
+            />
+          ))}
         </MuiTabs>
       </MuiAppBar>
       <SwipeableViews index={value} onChangeIndex={handleChangeIndex}>
-        <TabPanel value={value} index={0}>
-          <Grid container spacing={2}>
-            {Array.from(Array(10)).map((_, index) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
-                <Score isHeld={isHeld} />
-              </Grid>
-            ))}
-          </Grid>
-        </TabPanel>
-        <TabPanel value={value} index={1}>
-          Item Two
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          Item Three
-        </TabPanel>
-        <TabPanel value={value} index={3}>
-          Item Four
-        </TabPanel>
-        <TabPanel value={value} index={4}>
-          Item Five
-        </TabPanel>
+        {ligas.map((liga, ind) => (
+          <TabPanel value={value} index={ind} key={ind}>
+            <Grid container spacing={2}>
+              {oldgame
+                .filter((g) => g.liga.id === liga.id)
+                .map((game, index) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+                    <Score
+                      isHeld={isHeld}
+                      player1={game.player1}
+                      player2={game.player2}
+                      res={game.natija}
+                    />
+                  </Grid>
+                ))}
+            </Grid>
+          </TabPanel>
+        ))}
       </SwipeableViews>
     </Container>
   );

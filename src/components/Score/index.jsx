@@ -1,7 +1,7 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { Result, ScoreWrapper, Team, Date } from "./style";
 
-const Score = ({ isHeld }) => {
+const Score = ({ isHeld, player1, player2, res }) => {
   return (
     <Box display="flex" flexDirection="column">
       <ScoreWrapper>
@@ -13,9 +13,9 @@ const Score = ({ isHeld }) => {
         >
           <Grid item>
             <Team>
-              <img src="/images/barcelona-logo.png" alt="barcelona" />
+              <img src={player1.image} alt={player1.name} />
               <Typography color="text.primary" variant="body2" fontWeight={700}>
-                Barcelona
+                {player1.name}
               </Typography>
             </Team>
           </Grid>
@@ -24,13 +24,13 @@ const Score = ({ isHeld }) => {
               {isHeld ? (
                 <>
                   <Typography color="text.primary" fontWeight={700}>
-                    3
+                    {res.split(":")[0]}
                   </Typography>
                   <Typography color="text.primary" fontWeight={700}>
                     :
                   </Typography>
                   <Typography color="text.primary" fontWeight={700}>
-                    0
+                    {res.split(":")[1]}
                   </Typography>
                 </>
               ) : (
@@ -43,9 +43,9 @@ const Score = ({ isHeld }) => {
           <Grid item>
             <Team>
               <Typography color="text.primary" variant="body2" fontWeight={400}>
-                Liverpool
+                {player2.name}
               </Typography>
-              <img src="/images/liverpool-logo.png" alt="liverpool" />
+              <img src={player2.image} alt={player2.name} />
             </Team>
           </Grid>
         </Grid>

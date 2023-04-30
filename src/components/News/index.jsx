@@ -1,4 +1,5 @@
-import { AppBar, Button, Container, Grid, Typography } from "@mui/material";
+import { Container, Grid } from "@mui/material";
+import { newsUrl, NEWS_URL } from "../../api/urls";
 import NewsCard from "./NewsCard";
 import { MuiButton, Title } from "./style";
 

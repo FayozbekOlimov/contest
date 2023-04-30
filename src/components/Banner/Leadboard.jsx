@@ -11,26 +11,47 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import { useState } from "react";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
+import { BASE_URL, ligaUrl, teamUrl } from "../../api/urls";
+import { DataContext } from "../../context/DataProvider";
 import { StyledTableCell, StyledTableRow } from "./style";
 
 const Leadboard = () => {
   const [select, setSelect] = useState(1);
+  const [team, setTeam] = useState([]);
+  const [subteam, setSubteam] = useState([]);
 
   const handleChange = (event) => {
     setSelect(event.target.value);
+    const ligaId = +event.target.value;
+    const subteam = team.filter((t) => t.liga === ligaId);
+    setSubteam(subteam);
   };
 
-  function createData(tr, team, turnir, topnis, ochko) {
-    return { tr, team, turnir, topnis, ochko };
-  }
+  const [ligas, setLigas] = useState([]);
 
-  const rows = [
-    createData(1, "Barcelona", 15, 40, 75),
-    createData(2, "Barcelona", 15, 40, 75),
-    createData(3, "Barcelona", 15, 40, 75),
-    createData(4, "Barcelona", 15, 40, 75),
-  ];
+  const getLigas = async () => {
+    const resp = await axios.get(BASE_URL + ligaUrl);
+    const data = resp.data;
+    setLigas(data);
+  };
+
+  useEffect(() => {
+    getLigas();
+  }, []);
+
+  const getTeam = async () => {
+    const resp = await axios.get(BASE_URL + teamUrl);
+    const data = resp?.data;
+    setTeam(data);
+    const subteam = data.filter((t) => t.liga === 1);
+    setSubteam(subteam);
+  };
+
+  useEffect(() => {
+    getTeam();
+  }, []);
 
   return (
     <Box p={1} bgcolor="background.table1" borderRadius={2}>
@@ -39,11 +60,11 @@ const Leadboard = () => {
       </Typography>
       <FormControl fullWidth sx={{ my: 1, bgcolor: "background.table2" }}>
         <Select value={select} onChange={handleChange}>
-          <MenuItem value={1}>Italiya A seriya</MenuItem>
-          <MenuItem value={2}>Laliga</MenuItem>
-          <MenuItem value={3}>Premierliga</MenuItem>
-          <MenuItem value={4}>Bundesliga</MenuItem>
-          <MenuItem value={5}>Ligue 1</MenuItem>
+          {ligas.map((liga) => (
+            <MenuItem key={liga.id} value={liga.id}>
+              {liga.name}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <TableContainer component={Paper} elevation={0}>
@@ -58,13 +79,13 @@ const Leadboard = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
-              <StyledTableRow key={row.tr}>
-                <StyledTableCell component="th">{row.tr}</StyledTableCell>
-                <StyledTableCell align="left">{row.team}</StyledTableCell>
-                <StyledTableCell align="right">{row.turnir}</StyledTableCell>
-                <StyledTableCell align="right">{row.topnis}</StyledTableCell>
-                <StyledTableCell align="right">{row.ochko}</StyledTableCell>
+            {subteam.map((row, ind) => (
+              <StyledTableRow key={row?.id}>
+                <StyledTableCell component="th">{ind + 1}</StyledTableCell>
+                <StyledTableCell align="left">{row?.name}</StyledTableCell>
+                <StyledTableCell align="right">{row?.tur}</StyledTableCell>
+                <StyledTableCell align="right">{row?.nisbat}</StyledTableCell>
+                <StyledTableCell align="right">{row?.ochko}</StyledTableCell>
               </StyledTableRow>
             ))}
           </TableBody>
